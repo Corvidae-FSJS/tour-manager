@@ -1,4 +1,4 @@
-const Stop = require('../stop');
+const Stop = require('../lib/models/stop');
 
 describe('Stop model', () => {
 

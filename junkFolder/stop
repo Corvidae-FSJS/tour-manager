@@ -7,10 +7,12 @@ const stopSchema = new Schema({
     longitude: Number
   },
   weather: { 
-    any: 'object', //will get from weather api 
+    time: Date,
+    forecast: String
   },
   attendance: {
-    type: Number
+    type: Number,
+    min: 1
   }
 });
 
