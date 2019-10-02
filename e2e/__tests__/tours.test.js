@@ -1,3 +1,4 @@
+jest.mock('../../lib/services/maps-api');
 const request = require('../request');
 const db = require('../db');
 //const mongoose = require('mongoose');
