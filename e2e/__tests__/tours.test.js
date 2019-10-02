@@ -1,92 +1,106 @@
 jest.mock('../../lib/services/maps-api');
 const request = require('../request');
 const db = require('../db');
-//const mongoose = require('mongoose');
-//const Stop = require('../../lib/models/stop');
+const { matchMongoId } = require('../match-helpers');
+const getLocation = require('../../lib/services/maps-api');
+const getWeather = require('../../lib/services/weather-api');
 
-// const stop1 = {
-//   location: {
-//     latitude: 45.5266975,
-//     longitude: -122.6880503
-//   },
-//   weather: {
-//     any: 'object', //will get from weather api 
-//   },
-//   attendance: 420
-// };
+getLocation.mockResolvedValue({
+  latitude: 45.5266975,
+  longitude: -122.6880503
+});
 
-// function postStop(stop) {
-//   return request
-//     .post('/api/stops')
-//     .send(stop)
-//     .expect(200)
-//     .then(({ body }) => body);
-// }
+getWeather.mockResolvedValue({
+  time: new Date(1569999600 * 1000).toISOString(),
+  summary: 'Weather is good.'
+});
+
 
 describe('tours api', () => {
   beforeEach(() => {
-    return Promise.all([
-      db.dropCollection('tours'),
-      db.dropCollection('stops'),
-    ]);
+    return db.dropCollection('tours');
   });
 
   const data = {
-    title: 'Don\'t Stop Til You Drop!',
+    title: "Don't Stop Til You Drop!",
     activities: ['live music', 'food', 'camping', 'butts'],
     launchDate: new Date(),
-    stops: []
+    stops: [{}]
   };
 
-  function postTour(tour) {
+  const location1 = {
+    name: 'Test Location 1',
+    address: '97209'
+  };
+
+  const attend1 = {
+    attendance: 20
+  };
+
+  function postTour(data) {
     return request
       .post('/api/tours')
-      .send(tour)
+      .send(data)
       .expect(200)
       .then(({ body }) => body);
   }
-  
+
   it('posts a tour', () => {
     return postTour(data)
       .then(tour => {
-        expect(tour).toEqual({
-          _id: expect.any(String),
-          __v: 0,
-          title: expect.any(String),
-          activities: ['live music', 'food', 'camping', 'butts'],
-          launchDate: expect.any(String),
-          stops: []
-        });
+        expect(tour)
+          .toMatchInlineSnapshot({
+            _id: expect.any(String),
+            launchDate: expect.any(String),
+            stops: [{ _id: expect.any(String) }]
+          },
+          );
       });
   });
 
-//   it('gets a tour by id', () => {
-//     return postStop(stop1)
-//       .then(postedStop => {
-//         data[0] = postedStop._id; 
-//         console.log(data[0]);
-//         return postTour(data)
-//           .then(tour => {
-//             return request
-//               .get(`/api/tours/${tour._id}`)
-//               .expect(200)
-//               .then(({ body }) => {
-//                 expect(body).toMatchInlineSnapshot(
-//                   {
-//                     _id: expect.any(String),
-//                     title: expect.any(String),
-//                     activities: [ 
-//                       expect.any(String)
-//                     ],
-//                     launchDate: expect.any(String),
-//                     stops: [{ 
-//                       _id: expect.any(String),
-//                     }]
-//                   },
-//                 );
-//               });
-//           });
-//       });
-//   });
-// });
+  // const stop1 = [
+  //   {
+  //     location: {
+  //       latitude: 45.5266975,
+  //       longitude: -122.6880503
+  //     },
+  //     weather: {
+  //       time: new Date(),
+  //       forecast: 'weather is good'
+  //     },
+  //     attendance: 300
+  //   }
+  // ];
+
+  // function postTourWithStop(tour, stop) {
+  //   return postTour(tour).then(tour => {
+  //     return request
+  //       .post(`/api/tours/${tour.id}/stops`)
+  //       .send(stop)
+  //       .expect(200)
+  //       .then(({ body }) => [tour, body]);
+  //   });
+  // }
+
+  it('adds a stop to a tour', () => {
+    return postTourWithStop(data, stop1).then(([, stops]) => {
+      expect(stops[0]).toEqual({
+        ...matchMongoId,
+        ...stop1,
+        date: expect.any(String)
+      });
+    });
+  });
+
+  it('removes a stop', () => {
+    return postTourWithStop(data, stop1)
+      .then(([tour, stops]) => {
+        return request
+          .delete(`/api/tours/${tour._id}/stops/${stops[0]._id}`)
+          .expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(0);
+      });
+  });
 });
