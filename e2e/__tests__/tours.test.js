@@ -3,24 +3,24 @@ const db = require('../db');
 //const mongoose = require('mongoose');
 //const Stop = require('../../lib/models/stop');
 
-const stop1 = {
-  location: {
-    latitude: 45.5266975,
-    longitude: -122.6880503
-  },
-  weather: {
-    any: 'object', //will get from weather api 
-  },
-  attendance: 420
-};
+// const stop1 = {
+//   location: {
+//     latitude: 45.5266975,
+//     longitude: -122.6880503
+//   },
+//   weather: {
+//     any: 'object', //will get from weather api 
+//   },
+//   attendance: 420
+// };
 
-function postStop(stop) {
-  return request
-    .post('/api/stops')
-    .send(stop)
-    .expect(200)
-    .then(({ body }) => body);
-}
+// function postStop(stop) {
+//   return request
+//     .post('/api/stops')
+//     .send(stop)
+//     .expect(200)
+//     .then(({ body }) => body);
+// }
 
 describe('tours api', () => {
   beforeEach(() => {
@@ -88,6 +88,4 @@ describe('tours api', () => {
 //       });
 //   });
 // });
-
-
-
+});
