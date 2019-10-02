@@ -82,25 +82,59 @@ describe('tours api', () => {
   //   });
   // }
 
-  it('adds a stop to a tour', () => {
-    return postTourWithStop(data, stop1).then(([, stops]) => {
-      expect(stops[0]).toEqual({
-        ...matchMongoId,
-        ...stop1,
-        date: expect.any(String)
+  it('gets all tours', () => {
+    return postTour(data)
+      .then(() => {
+        return request.get('/api/tours')
+          .then(({ body }) => {
+            expect(body[0]).toMatchInlineSnapshot(
+              {
+                _id: expect.any(String),
+                launchDate: expect.any(String),
+                stops: [{ _id: expect.any(String) }]
+              }
+            );
+          });
       });
-    });
+  });
+
+  it('adds a stop to a tour', () => {
+    return postTour(data)
+      .then(tour => {
+        return request
+          .post(`/api/tours/${tour._id}/stops`)
+          .send(location1)
+          .expect(200)
+          .then(body => {
+            return [body, location1, location1];
+          });
+      })
+      .then(out => {
+        const stops = out[0].body[1];
+        expect(stops).toMatchInlineSnapshot(
+          {
+            _id: expect.any(String)
+          },
+        );
+      });
   });
 
   it('removes a stop', () => {
-    return postTourWithStop(data, stop1)
-      .then(([tour, stops]) => {
+    return postTour(data)
+      .then(tour => {
         return request
-          .delete(`/api/tours/${tour._id}/stops/${stops[0]._id}`)
-          .expect(200);
-      })
-      .then(({ body }) => {
-        expect(body.length).toBe(0);
+          .post(`/api/tours/${tour._id}/stops`)
+          .send(location1)
+          .expect(200)
+          .then(out => {
+            const stops = out.body[1];
+            return request
+              .delete(`/api/tours/${tour._id}/stops/${stops._id}`)
+              .send(tour._id, stops._id)
+              .expect(200);
+          });
       });
   });
+
+  it('updates attendance')
 });
