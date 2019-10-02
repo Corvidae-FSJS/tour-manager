@@ -75,30 +75,6 @@ describe('tours api', () => {
     });
   });
 
-  // const stop1 = [
-  //   {
-  //     location: {
-  //       latitude: 45.5266975,
-  //       longitude: -122.6880503
-  //     },
-  //     weather: {
-  //       time: new Date(),
-  //       forecast: 'weather is good'
-  //     },
-  //     attendance: 300
-  //   }
-  // ];
-
-  // function postTourWithStop(tour, stop) {
-  //   return postTour(tour).then(tour => {
-  //     return request
-  //       .post(`/api/tours/${tour.id}/stops`)
-  //       .send(stop)
-  //       .expect(200)
-  //       .then(({ body }) => [tour, body]);
-  //   });
-  // }
-
   it('gets all tours', () => {
     return postTour(data).then(() => {
       return request.get('/api/tours').then(({ body }) => {
