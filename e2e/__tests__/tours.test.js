@@ -3,9 +3,31 @@ const db = require('../db');
 //const mongoose = require('mongoose');
 //const Stop = require('../../lib/models/stop');
 
+const stop1 = {
+  location: {
+    latitude: 45.5266975,
+    longitude: -122.6880503
+  },
+  weather: {
+    any: 'object', //will get from weather api 
+  },
+  attendance: 420
+};
+
+function postStop(stop) {
+  return request
+    .post('/api/stops')
+    .send(stop)
+    .expect(200)
+    .then(({ body }) => body);
+}
+
 describe('tours api', () => {
   beforeEach(() => {
-    return db.dropCollection('tours');
+    return Promise.all([
+      db.dropCollection('tours'),
+      db.dropCollection('stops'),
+    ]);
   });
 
   const data = {
@@ -37,17 +59,35 @@ describe('tours api', () => {
       });
   });
 
-  it('gets a tour by id', () => {
-    return postTour(data)
-      .then(tour => {
-        return request.get(`/api/tours/${tour._id}`)
-          .expect(200)
-          .then(({ body }) => {
-            expect(body).toEqual(tour);
-          });
-      });
-  });
-});
+//   it('gets a tour by id', () => {
+//     return postStop(stop1)
+//       .then(postedStop => {
+//         data[0] = postedStop._id; 
+//         console.log(data[0]);
+//         return postTour(data)
+//           .then(tour => {
+//             return request
+//               .get(`/api/tours/${tour._id}`)
+//               .expect(200)
+//               .then(({ body }) => {
+//                 expect(body).toMatchInlineSnapshot(
+//                   {
+//                     _id: expect.any(String),
+//                     title: expect.any(String),
+//                     activities: [ 
+//                       expect.any(String)
+//                     ],
+//                     launchDate: expect.any(String),
+//                     stops: [{ 
+//                       _id: expect.any(String),
+//                     }]
+//                   },
+//                 );
+//               });
+//           });
+//       });
+//   });
+// });
 
 
 
